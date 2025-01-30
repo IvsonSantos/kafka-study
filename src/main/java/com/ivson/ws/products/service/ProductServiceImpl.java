@@ -27,7 +27,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public String createProduct(CreateProductRestModel productRestModel) {
+    public String createProduct(CreateProductRestModel productRestModel) throws Exception {
 
         String productId = UUID.randomUUID().toString();
 
@@ -40,6 +40,7 @@ public class ProductServiceImpl implements ProductService {
             productRestModel.getQuantity()
         );
 
+        /*
         // envia a mensagem para o Kafka de forma assincrona
         // topico, o id da mensagem, o json a ser enviado
         CompletableFuture<SendResult<String, ProductCreatedEvent>> future =
@@ -55,6 +56,17 @@ public class ProductServiceImpl implements ProductService {
         // AQUI QUE DEFINIMOS O SINCRONO
         // bloqueia o thread atual ate que o future seja consluido
         // future.join();
+
+         */
+
+        LOG.info("*** Before publichsing a ProductCreatedEvent");
+
+        SendResult<String, ProductCreatedEvent> result =
+                kafkaTemplate.send(topicName, productId, productCreatedEvent).get();
+
+        LOG.info("*** Partition: {}", result.getRecordMetadata().partition());
+        LOG.info("*** Topic: {}", result.getRecordMetadata().topic());
+        LOG.info("*** Offset: {}", result.getRecordMetadata().offset());
 
         LOG.info("*** Returning productId: {}", productId);
 
