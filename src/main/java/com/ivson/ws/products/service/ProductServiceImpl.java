@@ -1,6 +1,6 @@
 package com.ivson.ws.products.service;
 
-import com.ivson.ws.products.event.ProductCreatedEvent;
+import com.ivson.ws.core.ProductCreatedEvent;
 import com.ivson.ws.products.model.CreateProductRestModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,15 +10,17 @@ import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 
 @Service
 public class ProductServiceImpl implements ProductService {
 
+    @Value("${spring.kafka.producer.acks}")
+    private String acks;
+
     @Value("${topic-name}")
     String topicName;
 
-    private final Logger LOG = LoggerFactory.getLogger(this.getClass());
+    private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
     KafkaTemplate<String, ProductCreatedEvent> kafkaTemplate;
 
@@ -59,16 +61,16 @@ public class ProductServiceImpl implements ProductService {
 
          */
 
-        LOG.info("*** Before publichsing a ProductCreatedEvent");
+        LOGGER.info("*** Before publichsing a ProductCreatedEvent");
 
         SendResult<String, ProductCreatedEvent> result =
                 kafkaTemplate.send(topicName, productId, productCreatedEvent).get();
 
-        LOG.info("*** Partition: {}", result.getRecordMetadata().partition());
-        LOG.info("*** Topic: {}", result.getRecordMetadata().topic());
-        LOG.info("*** Offset: {}", result.getRecordMetadata().offset());
+        LOGGER.info("*** Partition: {}", result.getRecordMetadata().partition());
+        LOGGER.info("*** Topic: {}", result.getRecordMetadata().topic());
+        LOGGER.info("*** Offset: {}", result.getRecordMetadata().offset());
 
-        LOG.info("*** Returning productId: {}", productId);
+        LOGGER.info("*** Returning productId: {}", productId);
 
         return productId;
     }
