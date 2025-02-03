@@ -65,4 +65,4 @@ Criar um produto
 Checar o Dead Letter Topic
 
 - ````
-  ./bin/kafka-console-consumer.sh --topic product-created-events-topic.DLT --bootstrap-server localhost:9092 --from-beginning --property print.key=true --property print.value=true
+  ./bin/kafka-console-consumer.sh --topic product-created-events-topic-dlt --bootstrap-server localhost:9092 --from-beginning --property print.key=true --property print.value=true
