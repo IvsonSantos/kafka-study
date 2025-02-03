@@ -54,5 +54,15 @@ Executar com chave
 
 Criar um topico
 
-./bin/kafka-topics.sh --create --topic messages-order --partitions 3 --replication-factor 3 --bootstrap-server localhost:9092
+- ````
+  ./bin/kafka-topics.sh --create --topic messages-order --partitions 3 --replication-factor 3 --bootstrap-server localhost:9092
 
+Criar um produto
+
+- ````
+  ./bin/kafka-console-producer.sh --topic product-created-events-topic --bootstrap-server localhost:9092 --property parse.ket=true --property ket.separator=:
+
+Checar o Dead Letter Topic
+
+- ````
+  ./bin/kafka-console-consumer.sh --topic product-created-events-topic.DLT --bootstrap-server localhost:9092 --from-beginning --property print.key=true --property print.value=true
