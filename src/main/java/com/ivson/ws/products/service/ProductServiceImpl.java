@@ -2,6 +2,7 @@ package com.ivson.ws.products.service;
 
 import com.ivson.ws.core.ProductCreatedEvent;
 import com.ivson.ws.products.model.CreateProductRestModel;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -63,8 +64,15 @@ public class ProductServiceImpl implements ProductService {
 
         LOGGER.info("*** Before publichsing a ProductCreatedEvent");
 
-        SendResult<String, ProductCreatedEvent> result =
-                kafkaTemplate.send(topicName, productId, productCreatedEvent).get();
+        ProducerRecord<String, ProductCreatedEvent> producerRecord = new ProducerRecord<>(
+        "product-created-events-topic",
+            productId,
+            productCreatedEvent
+        );
+
+        producerRecord.headers().add("messageId", UUID.randomUUID().toString().getBytes());
+
+        SendResult<String, ProductCreatedEvent> result = kafkaTemplate.send(producerRecord).get();
 
         LOGGER.info("*** Partition: {}", result.getRecordMetadata().partition());
         LOGGER.info("*** Topic: {}", result.getRecordMetadata().topic());
