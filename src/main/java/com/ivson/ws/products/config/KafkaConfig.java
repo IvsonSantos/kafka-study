@@ -1,6 +1,5 @@
 package com.ivson.ws.products.config;
 
-import com.ivson.ws.core.ProductCreatedEvent;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,6 +9,7 @@ import org.springframework.kafka.config.TopicBuilder;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
+import org.springframework.kafka.transaction.KafkaTransactionManager;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -41,6 +41,10 @@ public class KafkaConfig {
     @Value("${spring.kafka.producer.properties.request.timeout.ms}")
     private String requestTimeout;
 
+    @Value("${spring.kaka.producer.transaction-id-prefix}")
+    private String transactionIdPrefix;
+
+
     private Map<String, Object> producerConfigs() {
         Map<String, Object> config = new HashMap<>();
         config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
@@ -50,19 +54,26 @@ public class KafkaConfig {
         config.put(ProducerConfig.DELIVERY_TIMEOUT_MS_CONFIG, deliveryTimeout);
         config.put(ProducerConfig.LINGER_MS_CONFIG, linger);
         config.put(ProducerConfig.REQUEST_TIMEOUT_MS_CONFIG, requestTimeout);
+
+        config.put(ProducerConfig.TRANSACTIONAL_ID_CONFIG, transactionIdPrefix);
+
         return config;
     }
 
     @Bean
-    ProducerFactory<String, ProductCreatedEvent> productFactory() {
+    ProducerFactory<String, Object> productFactory() {
         return new DefaultKafkaProducerFactory<>(producerConfigs());
     }
 
     @Bean
-    KafkaTemplate<String, ProductCreatedEvent> kafkaTemplate() {
-        return new KafkaTemplate<>(productFactory());
+    KafkaTemplate<String, Object> kafkaTemplate(ProducerFactory<String, Object> producerFactory) {
+        return new KafkaTemplate<>(producerFactory);
     }
 
+    @Bean
+    KafkaTransactionManager<String, Object> kafkaTransactionManager(ProducerFactory<String, Object> producerFactory) {
+        return new KafkaTransactionManager<>(producerFactory);
+    }
 
     private Map<String, String> configs = Map.of(
             // 1 replica precisa estar sincronizad com sucesso antes de confirmar a escrita
