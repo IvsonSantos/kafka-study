@@ -62,7 +62,7 @@ public class ProductServiceImpl implements ProductService {
 
          */
 
-        LOGGER.info("*** Before publichsing a ProductCreatedEvent");
+        LOGGER.info("*** Before publishing a ProductCreatedEvent");
 
         ProducerRecord<String, ProductCreatedEvent> producerRecord = new ProducerRecord<>(
         "product-created-events-topic",
